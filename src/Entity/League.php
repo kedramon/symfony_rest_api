@@ -5,6 +5,8 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\LeagueRepository")
@@ -24,7 +26,7 @@ class League
     private $name;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Team", mappedBy="league")
+     * @ORM\OneToMany(targetEntity="App\Entity\Team", mappedBy="league", cascade={"persist"})
      */
     private $teams;
 
@@ -111,7 +113,7 @@ class League
     {
         if ($this->teams->contains($team)) {
             $this->teams->removeElement($team);
-            // set the owning side to null (unless already changed)
+            // Set the owning side to null (unless already changed).
             if ($team->getLeague() === $this) {
                 $team->setLeague(null);
             }
@@ -142,5 +144,28 @@ class League
         $this->sponsor = $sponsor;
 
         return $this;
+    }
+
+    /**
+     * Convert to array.
+     *
+     * @return array|bool|float|int|mixed|string
+     */
+    public function toArray()
+    {
+        $converted = [];
+        foreach ($this->getTeams() as $team) {
+            $converted[] = $team->toArray();
+        }
+
+        // Convert teams to array.
+        if (!empty($converted)) {
+            $this->teams = $converted;
+        }
+
+        $normalizers = [new ObjectNormalizer()];
+        $serializer = new Serializer($normalizers);
+
+        return $serializer->normalize($this);
     }
 }

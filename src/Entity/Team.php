@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\TeamRepository")
@@ -38,6 +40,7 @@ class Team
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\League", inversedBy="teams")
+     * @ORM\JoinColumn(name="league", referencedColumnName="id", nullable=true, onDelete="SET NULL")
      */
     private $league;
 
@@ -183,5 +186,26 @@ class Team
         $this->league = $league;
 
         return $this;
+    }
+
+    /**
+     * Convert to array.
+     *
+     * @return array|bool|float|int|mixed|string
+     */
+    public function toArray()
+    {
+        $normalizer = new ObjectNormalizer();
+        $normalizer->setIgnoredAttributes(['teams', '__initializer__', '__cloner__', '__isInitialized__']);
+        $normalizer->setCircularReferenceHandler(function ($object) {
+            /** @var self $object */
+
+            return $object->getId();
+        });
+
+        $normalizers = [$normalizer];
+        $serializer = new Serializer($normalizers);
+
+        return $serializer->normalize($this);
     }
 }
