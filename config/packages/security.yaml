@@ -17,9 +17,13 @@ security:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
+        get-token:
+            pattern:   ^/api/get-token
+            stateless: true
+            anonymous: true
         api:
             pattern:   ^/api
-            anonymous: ~
+            stateless: true
             guard:
                 authenticators:
                 - lexik_jwt_authentication.jwt_token_authenticator
