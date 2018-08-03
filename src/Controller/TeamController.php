@@ -76,7 +76,12 @@ class TeamController extends Controller
 
         $team = $entityManager->getRepository(Team::class)->findOneBy(['id' => $id]);
         if (!$team) {
-            throw new NotFoundHttpException(sprintf('Team not found for ID %d', $id));
+            $error = [
+                'code' => Response::HTTP_NOT_FOUND,
+                'message' => sprintf('Team not found for ID %d', $id),
+            ];
+
+            return new JsonResponse($error);
         }
 
         if (!empty($content->name)) {
@@ -115,7 +120,12 @@ class TeamController extends Controller
     {
         $team = $entityManager->getRepository(Team::class)->findOneBy(['id' => $id]);
         if (!$team) {
-            throw new NotFoundHttpException(sprintf('Team not found for ID %d', $id));
+            $error = [
+                'code' => Response::HTTP_NOT_FOUND,
+                'message' => sprintf('Team not found for ID %d', $id),
+            ];
+
+            return new JsonResponse($error);
         }
         $entityManager->remove($team);
         $entityManager->flush();

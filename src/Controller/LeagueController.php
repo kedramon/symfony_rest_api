@@ -7,7 +7,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
@@ -73,7 +72,12 @@ class LeagueController extends Controller
     {
         $league = $entityManager->getRepository(League::class)->findOneBy(['id' => $id]);
         if (!$league) {
-            throw new NotFoundHttpException(sprintf('League not found for ID %d', $id));
+            $error = [
+                'code' => Response::HTTP_NOT_FOUND,
+                'message' => sprintf('League not found for ID %d', $id),
+            ];
+
+            return new JsonResponse($error);
         }
         $entityManager->remove($league);
         $entityManager->flush();
