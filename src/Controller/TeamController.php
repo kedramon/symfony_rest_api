@@ -110,12 +110,11 @@ class TeamController extends Controller
      * @Route("/team/{id}", name="team_delete", methods={"DELETE"}, requirements={"id" = "\d+"})
      *
      * @param int                    $id
-     * @param Request                $request
      * @param EntityManagerInterface $entityManager
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function delete($id, Request $request, EntityManagerInterface $entityManager): Response
+    public function delete($id, EntityManagerInterface $entityManager): Response
     {
         $team = $entityManager->getRepository(Team::class)->findOneBy(['id' => $id]);
         if (!$team) {
